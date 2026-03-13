@@ -18,7 +18,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # Проверка установки Podkop
-if ! apk list-installed | grep -qE "^(podkop|luci-app-podkop) "; then
+if ! apk list | grep -qE "^(podkop|luci-app-podkop) "; then
     echo "Ошибка: Podkop не установлен"
     echo "Сначала установите Podkop: apk add podkop"
     exit 1
@@ -192,7 +192,7 @@ if [ "$INSTALL_XRAY" = "y" ]; then
     echo "Шаг 4: Установка xray-core..."
 
     # Проверка установки xray-core
-    if apk list-installed | grep -q "^xray-core "; then
+    if apk list | grep -q "^xray-core "; then
         echo "  ✓ xray-core уже установлен"
     else
         echo "  - Обновление списка пакетов..."
