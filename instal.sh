@@ -18,9 +18,9 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # Проверка установки Podkop
-if ! apk  list-added | grep -qE "^(podkop|luci-app-podkop) "; then
+if ! apk list-installed | grep -qE "^(podkop|luci-app-podkop) "; then
     echo "Ошибка: Podkop не установлен"
-    echo "Сначала установите Podkop: apk  add podkop"
+    echo "Сначала установите Podkop: apk add podkop"
     exit 1
 fi
 
@@ -34,8 +34,8 @@ fi
 # Проверка установки wget
 if ! command -v wget >/dev/null 2>&1; then
     echo "Установка wget..."
-    apk  update >/dev/null 2>&1 || true
-    apk  add wget || {
+    apk update >/dev/null 2>&1 || true
+    apk add wget || {
         echo "Ошибка: Не удалось установить wget"
         exit 1
     }
@@ -172,14 +172,14 @@ echo "Установить Xray? (y/n)"
 printf "Ваш выбор [y]: "
 
 # Read user input with timeout
-add_XRAY="y"
+INSTALL_XRAY="y"
 if read -t 30 user_input 2>/dev/null; then
     case "$user_input" in
         [Nn]|[Nn][Oo])
-            add_XRAY="n"
+            INSTALL_XRAY="n"
             ;;
         *)
-            add_XRAY="y"
+            INSTALL_XRAY="y"
             ;;
     esac
 else
@@ -187,23 +187,23 @@ else
     echo "Тайм-аут ввода. Используется значение по умолчанию: да"
 fi
 
-if [ "$add_XRAY" = "y" ]; then
+if [ "$INSTALL_XRAY" = "y" ]; then
     echo ""
     echo "Шаг 4: Установка xray-core..."
 
     # Проверка установки xray-core
-    if apk  list-added | grep -q "^xray-core "; then
+    if apk list-installed | grep -q "^xray-core "; then
         echo "  ✓ xray-core уже установлен"
     else
         echo "  - Обновление списка пакетов..."
-        apk  update >/dev/null 2>&1 || {
+        apk update >/dev/null 2>&1 || {
             echo "  ⚠ Предупреждение: Не удалось обновить список пакетов, продолжаем..."
         }
         
         echo "  - Установка xray-core..."
-        apk  add xray-core || {
+        apk add xray-core || {
             echo "  ⚠ Предупреждение: Не удалось автоматически установить xray-core"
-            echo "  Установите вручную: apk  update && apk  add xray-core"
+            echo "  Установите вручную: apk update && apk add xray-core"
         }
     fi
 
@@ -260,13 +260,13 @@ EOF
         }
     fi
     
-    XRAY_addED="yes"
+    XRAY_INSTALLED="yes"
 else
     echo ""
     echo "Шаг 4-6: Установка Xray пропущена"
     echo "  ℹ Режим 'Конфигурация Outbound' не будет доступен"
-    echo "  ℹ Вы можете установить Xray позже вручную: apk  add xray-core"
-    XRAY_addED="no"
+    echo "  ℹ Вы можете установить Xray позже вручную: apk add xray-core"
+    XRAY_INSTALLED="no"
 fi
 
 echo ""
@@ -288,7 +288,7 @@ echo ""
 echo "Что было установлено:"
 echo "  ✓ Плагин luci-app-podkop-subscribe"
 
-if [ "$XRAY_addED" = "yes" ]; then
+if [ "$XRAY_INSTALLED" = "yes" ]; then
     echo "  ✓ Пакет xray-core"
     echo "  ✓ Скрипт инициализации Xray (/etc/init.d/xray)"
     echo "  ✓ Служба Xray включена"
@@ -300,7 +300,7 @@ echo ""
 echo "Возможности:"
 echo "  - Режим Connection URL: Получение конфигураций и применение к Podkop"
 
-if [ "$XRAY_addED" = "yes" ]; then
+if [ "$XRAY_INSTALLED" = "yes" ]; then
     echo "  - Режим Outbound Config: Получение конфигураций и применение напрямую к Xray"
 else
     echo "  - Режим Outbound Config: Недоступен (требуется Xray)"
@@ -315,14 +315,14 @@ echo "  - Поддержка протоколов: vless://, ss://, trojan://, h
 echo "  - Поддержка тем: Автоматическая адаптация к светлой/тёмной теме"
 echo ""
 
-if [ "$XRAY_addED" = "no" ]; then
+if [ "$XRAY_INSTALLED" = "no" ]; then
     echo "Примечание:"
     echo "  Для использования режима 'Конфигурация Outbound' с XHTTP установите Xray:"
-    echo "    apk  update && apk  add xray-core"
+    echo "    apk update && apk add xray-core"
     echo "  Затем создайте init-скрипт или запустите установку плагина заново."
     echo ""
 fi
 
 echo "Для удаления запустите:"
-echo "  sh <(wget -O - ${REPO_URL}/unadd.sh)"
+echo "  sh <(wget -O - ${REPO_URL}/uninstall.sh)"
 echo ""
