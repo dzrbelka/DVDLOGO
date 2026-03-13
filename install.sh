@@ -17,13 +17,6 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# Проверка установки Podkop
-if ! apk list | grep -qE "^(podkop|luci-app-podkop) "; then
-    echo "Ошибка: Podkop не установлен"
-    echo "Сначала установите Podkop: apk add podkop"
-    exit 1
-fi
-
 # Проверка наличия section.js
 if [ ! -f /www/luci-static/resources/view/podkop/section.js ] && [ ! -f /overlay/upper/www/luci-static/resources/view/podkop/section.js ]; then
     echo "Предупреждение: Файл интерфейса Podkop LuCI не найден"
